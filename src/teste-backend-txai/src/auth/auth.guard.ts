@@ -9,20 +9,19 @@ import { IS_PUBLIC_ROUTE, jwtConstants } from './constants';
 import { Request } from 'express';
 import { TokenPayload } from './TokenPayload';
 import { Reflector } from '@nestjs/core';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    private jwtService: JwtService;
-    private reflector: Reflector;
+    private authService: AuthService;
 
-    constructor(jwtService: JwtService, reflector: Reflector) {
-        this.jwtService = jwtService;
-        this.reflector = reflector;
+    constructor(authService: AuthService) {
+        this.authService = authService;
 
     }
 
     public async canActivate(context: ExecutionContext): Promise<boolean> {
-        const isPublicRoute = this.isAccessingPublicRoute(context);
+        const isPublicRoute = this.authService.isAccessingPublicRoute(context);
 
         if (isPublicRoute) {
             return true;
@@ -32,10 +31,10 @@ export class AuthGuard implements CanActivate {
 
         const request = httpRequest.getRequest();
 
-        const token = this.extractTokenFromHeader(request);
+        const token = this.authService.extractTokenFromHeader(request);
 
         try {
-            const payload = await this.checkAndExtractPayload(token);
+            const payload = await this.authService.checkAndExtractPayload(token);
 
             request["userId"] = payload.sub;
             request["userRole"] = payload.role;
@@ -45,46 +44,6 @@ export class AuthGuard implements CanActivate {
         }
 
         return true;
-    }
-
-    private isAccessingPublicRoute(context: ExecutionContext): boolean {
-        const isPublicRoute = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_ROUTE, [
-            context.getHandler(),
-            context.getClass()
-        ]);
-
-        return isPublicRoute;
-    }
-
-    private async checkAndExtractPayload(token: string) {
-        try {
-            const payload = await this.jwtService.verify(token, {
-                secret: jwtConstants.secret
-            }) as TokenPayload;
-
-            return payload;
-        } catch {
-            throw new UnauthorizedException();
-        }
-
-    }
-
-    private extractTokenFromHeader(request: Request): string {
-        const requestHeaders = request.headers;
-
-        const authorizationHeader = requestHeaders.authorization;
-
-        if (!authorizationHeader) {
-            throw new UnauthorizedException();
-        }
-
-        const [type, token] = authorizationHeader.split(' ');
-
-        if (type !== "Bearer") {
-            throw new UnauthorizedException();
-        }
-
-        return token;
     }
 
 }
