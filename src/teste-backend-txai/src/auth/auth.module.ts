@@ -22,6 +22,6 @@ export class AuthModule {
         imports: AuthModule.AUTH_MODULE_IMPORTS,
         controllers: [AuthController],
         providers: [AuthService]
-    }
+    };
 
 }

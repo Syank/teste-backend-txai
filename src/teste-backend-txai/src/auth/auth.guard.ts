@@ -5,20 +5,29 @@ import {
     UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
+import { IS_PUBLIC_ROUTE, jwtConstants } from './constants';
 import { Request } from 'express';
 import { TokenPayload } from './TokenPayload';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
     private jwtService: JwtService;
+    private reflector: Reflector;
 
-    constructor(jwtService: JwtService) {
+    constructor(jwtService: JwtService, reflector: Reflector) {
         this.jwtService = jwtService;
+        this.reflector = reflector;
 
     }
 
     public async canActivate(context: ExecutionContext): Promise<boolean> {
+        const isPublicRoute = this.isAccessingPublicRoute(context);
+
+        if (isPublicRoute) {
+            return true;
+        }
+
         const httpRequest = context.switchToHttp();
 
         const request = httpRequest.getRequest();
@@ -28,7 +37,7 @@ export class AuthGuard implements CanActivate {
         try {
             const payload = await this.checkAndExtractPayload(token);
 
-            request['userId'] = payload.sub;
+            request["userId"] = payload.sub;
             request["userRole"] = payload.role;
 
         } catch {
@@ -36,6 +45,15 @@ export class AuthGuard implements CanActivate {
         }
 
         return true;
+    }
+
+    private isAccessingPublicRoute(context: ExecutionContext): boolean {
+        const isPublicRoute = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_ROUTE, [
+            context.getHandler(),
+            context.getClass()
+        ]);
+
+        return isPublicRoute;
     }
 
     private async checkAndExtractPayload(token: string) {
@@ -48,6 +66,7 @@ export class AuthGuard implements CanActivate {
         } catch {
             throw new UnauthorizedException();
         }
+
     }
 
     private extractTokenFromHeader(request: Request): string {

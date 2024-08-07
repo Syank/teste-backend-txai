@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards }
 import { AuthService } from './auth.service';
 import { Authentication } from './DTOs/Authentication';
 import { AuthGuard } from './auth.guard';
+import { PublicRoute } from './constants';
 
 @Controller('auth')
 export class AuthController {
@@ -13,7 +14,7 @@ export class AuthController {
 
     }
 
-    @HttpCode(HttpStatus.OK)
+    @PublicRoute()
     @Post('login')
     public authenticate(@Body() body: Authentication) {
         const response = this.authService.authenticate(body);
@@ -21,10 +22,9 @@ export class AuthController {
         return response;
     }
 
-    @UseGuards(AuthGuard)
-    @HttpCode(HttpStatus.OK)
     @Get('userId')
     public getUserId(@Request() request) {
         return request['userRole'];
     }
+
 }
