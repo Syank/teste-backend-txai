@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
+import { AuthGuard } from './auth.guard';
 
 @Module(AuthModule.AUTH_MODULE_CONFIGURATIONS)
 export class AuthModule {
@@ -21,7 +22,8 @@ export class AuthModule {
     private static readonly AUTH_MODULE_CONFIGURATIONS = {
         imports: AuthModule.AUTH_MODULE_IMPORTS,
         controllers: [AuthController],
-        providers: [AuthService]
+        providers: [AuthService],
+        exports: [AuthService]
     };
 
 }

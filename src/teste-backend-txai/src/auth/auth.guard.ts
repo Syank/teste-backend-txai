@@ -4,11 +4,6 @@ import {
     Injectable,
     UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { IS_PUBLIC_ROUTE, jwtConstants } from './constants';
-import { Request } from 'express';
-import { TokenPayload } from './TokenPayload';
-import { Reflector } from '@nestjs/core';
 import { AuthService } from './auth.service';
 
 @Injectable()
