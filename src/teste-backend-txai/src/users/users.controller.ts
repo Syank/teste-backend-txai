@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '@prisma/client';
 import { AdministrativeRouteGuard } from 'src/auth/administrativeAuth.guard';
@@ -35,8 +35,8 @@ export class UsersController {
     }
 
     @Delete("deleteUser")
-    public async deleteUser(@Body("userId") userId: number) {
-        const response = await this.usersService.deleteUser(userId);
+    public async deleteUser(@Query("userId") userId: string) {
+        const response = await this.usersService.deleteUser(parseInt(userId));
 
         return response;
     }
