@@ -11,8 +11,14 @@ jobs:
         image: postgres:16.2
         env:
           POSTGRES_PASSWORD: admin
+          DATABASE_URL: postgres://postgres:admin@localhost:5432/postgres
         ports:
           - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -20,6 +26,5 @@ jobs:
           node-version: 20.11.0
       - run: npm install
       - run: npm install pg
-      - run: psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE teste-backend-txai;'
       - run: npm run generate-database
       - run: npm run test
