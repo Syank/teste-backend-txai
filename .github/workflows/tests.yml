@@ -1,0 +1,25 @@
+name: Execute tests
+on:
+  push:
+    branches: [ main ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16.2
+        env:
+          POSTGRES_PASSWORD: admin
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.11.0
+      - run: npm install
+      - run: npm install pg
+      - run: |
+        psql -h postgres -U postgres -d postgres -c 'CREATE DATABASE teste-backend-txai;'
+      - env:
+          DATABASE_URL: postgresql://postgres:admin@postgres:5432/teste-backend-txai
+      - run: npm run generate-database
+      - run: npm run test
