@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, Query, Req } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Product } from '@prisma/client';
 import { Request } from 'express';
@@ -43,8 +43,6 @@ export class ProductController {
     @Delete("deleteProduct")
     public async deleteProduct(@Query("productId") productId: string, @Req() request: Request) {
         const userId = request["userId"];
-
-        console.log(productId);
 
         const response = await this.productService.deleteProduct(userId, parseInt(productId));
 

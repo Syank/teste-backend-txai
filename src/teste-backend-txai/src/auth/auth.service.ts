@@ -1,12 +1,12 @@
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { UsersService } from 'src/users/users.service';
 import { Authentication } from './DTOs/Authentication';
 import { TokenPayload } from './TokenPayload';
 import { IS_PUBLIC_ROUTE, jwtConstants } from './constants';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
@@ -24,8 +24,8 @@ export class AuthService {
     public async authenticate(authenticationInfo: Authentication) {
         const userFound = await this.userService.findByLogin(authenticationInfo.login);
 
-        if (userFound.password !== authenticationInfo.password) {
-            throw new Error('Invalid password');
+        if (userFound == null || userFound.password !== authenticationInfo.password) {
+            throw new UnauthorizedException("Unable to identify the user with the provided credentials");
         }
 
         const jwtToken = this.createJwtTokenForUser(userFound);
@@ -61,7 +61,7 @@ export class AuthService {
 
             return payload;
         } catch {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("Unable to authenticate the user with the provided token");
         }
 
     }
@@ -72,7 +72,7 @@ export class AuthService {
         const authorizationHeader = requestHeaders.authorization;
 
         if (!authorizationHeader) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("The request does not contain the Authorization header");
         }
 
         const [type, token] = authorizationHeader.split(' ');

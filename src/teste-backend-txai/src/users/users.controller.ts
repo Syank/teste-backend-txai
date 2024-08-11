@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '@prisma/client';
-import { AdministrativeRouteGuard } from 'src/auth/administrativeAuth.guard';
+import { AdministrativeRouteGuard } from '../auth/administrativeAuth.guard';
 
 @UseGuards(AdministrativeRouteGuard)
 @Controller("users")

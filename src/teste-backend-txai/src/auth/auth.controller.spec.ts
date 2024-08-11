@@ -1,18 +1,42 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
+import { AppModule } from '../app.module';
 
-describe('AuthController', () => {
-  let controller: AuthController;
+describe('Authentication', () => {
+    let application: INestApplication;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [AuthController],
-    }).compile();
+    beforeAll(async () => {
+        const moduleFixture: TestingModule = await Test.createTestingModule({
+            imports: [AppModule],
+        }).compile();
 
-    controller = module.get<AuthController>(AuthController);
-  });
+        application = moduleFixture.createNestApplication();
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+        await application.init();
+    });
+
+    it("Successfull authentication with valid credentials", () => {
+        return request(application.getHttpServer())
+            .post('/auth/login')
+            .send({
+                login: 'sistematxai',
+                password: '123456789'
+            })
+            .expect(HttpStatus.OK).
+            expect((response) => {
+                expect(response.text).toBeTruthy();
+            });
+    });
+
+    it("Unsuccessfull authentication with invalid credentials", () => {
+        return request(application.getHttpServer())
+            .post('/auth/login')
+            .send({
+                login: 'no_user',
+                password: 'no_password'
+            })
+            .expect(HttpStatus.UNAUTHORIZED);
+    });
+
 });

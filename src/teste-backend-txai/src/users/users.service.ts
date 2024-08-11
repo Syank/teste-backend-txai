@@ -17,10 +17,6 @@ export class UsersService {
             }
         });
 
-        if (!userFound) {
-            throw new Error('User not found');
-        }
-
         return userFound;
     }
 
