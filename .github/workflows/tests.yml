@@ -20,6 +20,6 @@ jobs:
           node-version: 20.11.0
       - run: npm install
       - run: npm install pg
-      - run: psql -h postgres -U postgres -d postgres -c 'CREATE DATABASE teste-backend-txai;'
+      - run: psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE teste-backend-txai;'
       - run: npm run generate-database
       - run: npm run test
