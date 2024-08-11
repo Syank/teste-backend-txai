@@ -11,14 +11,20 @@ jobs:
         env:
           POSTGRES_PASSWORD: admin
     steps:
-      - env:
-        DATABASE_URL: postgresql://postgres:admin@postgres:5432/teste-backend-txai
+      - name: Set up environment variables
+        env:
+          DATABASE_URL: postgresql://postgres:admin@postgres:5432/teste-backend-txai
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 20.11.0
-      - run: npm install
-      - run: npm install pg
-      - run: psql -h postgres -U postgres -d postgres -c 'CREATE DATABASE teste-backend-txai;'
-      - run: npm run generate-database
-      - run: npm run test
+      - name: Install dependencies
+        run: npm install
+      - name: Install pg
+        run: npm install pg
+      - name: Create database
+        run: psql -h postgres -U postgres -d postgres -c 'CREATE DATABASE teste-backend-txai;'
+      - name: Generate database
+        run: npm run generate-database
+      - name: Run tests
+        run: npm run test
